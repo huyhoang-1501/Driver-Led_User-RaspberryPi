@@ -1,0 +1,99 @@
+mkdir kernel_custom
+cd mkdir kernel_custom
+# Cài đặt các gói cần thiết
+sudo apt install git bc bison flex libssl-dev make libc6-dev libncurses5-dev
+
+# Cài đặt cross-compiler
+sudo apt install crossbuild-essential-arm64
+
+# Tải mã nguồn kernel từ GitHub (phiên bản 4.9)
+git clone --depth=1 https://github.com/raspberrypi/linux
+cd linux
+
+# Cấu hình kernel tùy chỉnh
+KERNEL=kernel8
+make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- bcm2711_defconfig
+
+# Chỉnh sửa cấu hình kernel bằng menuconfig
+make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- menuconfig
+
+make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- Image modules dtbs
+# Đảm bảo tất cả các file hệ thống đã được tạo trong thư mục này
+/linux/arch/arm/boot
+
+# Cài đặt kernel vào Raspberry Pi 4B
+# 1. Cắm thẻ SD của RPi vào laptop
+# 2. Dùng lệnh lsblk để kiểm tra phân vùng thẻ SD
+lsblk
+
+# 3. Tạo thư mục để gắn kết (mount) thẻ SD
+cd /kernel/linux
+mkdir mnt
+
+# 4. Gắn kết các phân vùng trên thẻ SD
+mkdir mnt/boot
+mkdir mnt/root
+lsblk
+
+sudo mount /dev/sdb1 mnt/boot
+sudo mount /dev/sdb2 mnt/root
+
+sudo env PATH=$PATH make -j12 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- INSTALL_MOD_PATH=mnt/root modules_install
+# Sao lưu và sao chép kernel mới vào thẻ SD
+sudo cp mnt/boot/$KERNEL.img mnt/boot/$KERNEL-backup.img
+sudo cp arch/arm64/boot/Image mnt/boot/$KERNEL.img
+sudo cp arch/arm64/boot/dts/broadcom/*.dtb mnt/boot/
+sudo cp arch/arm64/boot/dts/overlays/*.dtb* mnt/boot/overlays/
+sudo cp arch/arm64/boot/dts/overlays/README mnt/boot/overlays/
+
+# Chỉnh sửa file cấu hình config.txt
+nano mnt/boot/config.txt
+# Chỉnh sửa file config.txt
+nano mnt/fat32/config.txt
+
+# Nội dung bên trong config.txt
+[all]
+kernel=kernel8.img
+
+# 8. Tháo gỡ (unmount) các phân vùng trên thẻ SD
+sudo umount mnt/boot
+sudo umount mnt/root
+
+# 9. Rút thẻ SD và cắm vào Raspberry Pi
+
+
+COde hello world
+#include <linux/init.h>    // Needed for the macros
+#include <linux/module.h>  // Needed by all modules
+#include <linux/kernel.h>  // Needed for KERN_INFO
+
+#define DRIVER_AUTHOR "HuyHoang"
+#define DRIVER_DESC "A simple module about hello world"
+
+MODULE_LICENSE("GPL");
+MODULE_AUTHOR(DRIVER_AUTHOR);
+MODULE_DESCRIPTION(DRIVER_DESC);
+MODULE_VERSION("0.1");
+
+static int __init hello_init(void) {
+    printk(KERN_INFO "Hello world\n");
+    return 0;
+}
+
+static void __exit hello_exit(void) {
+    printk(KERN_INFO "Goodbye, World!\n");
+}
+
+module_init(hello_init);
+module_exit(hello_exit);
+Makefile
+export ARCH=arm64
+export CROSS_COMPILE=aarch64-linux-gnu-
+
+obj-m += helloworld.o
+
+all:
+    make -C /home/huyhoang/kernel_custom/linux M=$(PWD) modules
+
+clean:
+    make -C /home/huyhoang/kernel_custom/linux  M=$(PWD) clean

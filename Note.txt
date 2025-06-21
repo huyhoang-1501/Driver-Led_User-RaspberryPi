@@ -1,0 +1,15 @@
+dmesg | tail -n 20
+Kiểm tra driver
+ls -l /dev/driver
+Nếu ko có thì làm thủ công:
+sudo mknod /dev/driver c 235 0
+sudo chmod 666 /dev/driver
+Nếu có: 
+Cấp quyền thực thi:
+sudo chmod 666 /dev/driver
+Cuối cùng: 
+echo "bat" > /dev/driver
+echo "tat" > /dev/driver
+
+User:
+sudo ./user_control
