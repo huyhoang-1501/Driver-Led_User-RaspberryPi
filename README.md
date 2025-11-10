@@ -68,7 +68,7 @@ The project includes:
 * cd linux
 * KERNEL=kernel8
 * make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- bcm2711_defconfig
-# (Optional) make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- menuconfig
+###  (Optional) make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- menuconfig
 
 ### 3. Build Kernel, Modules & DTBs
 
@@ -80,30 +80,30 @@ The project includes:
 * Makefile (driver)
 * cd ~/rpi4-driver
 * make
-# → driver_rpi4.ko
+#### → driver_rpi4.ko
 
 ### 5. Deploy Kernel to SD Card
 
-# Insert RPi SD card → identify with lsblk (e.g., /dev/sdb)
+### Insert RPi SD card → identify with lsblk (e.g., /dev/sdb)
 * sudo mkdir -p mnt/boot mnt/root
 * sudo mount /dev/sdb1 mnt/boot
 * sudo mount /dev/sdb2 mnt/root
 
-# Install modules
+### Install modules
 * sudo env PATH=$PATH make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- \
      * * INSTALL_MOD_PATH=$(pwd)/mnt/root modules_install
 
-# Backup & copy kernel
+### Backup & copy kernel
 * sudo cp mnt/boot/$KERNEL.img mnt/boot/$KERNEL-backup.img
 * sudo cp arch/arm64/boot/Image mnt/boot/$KERNEL.img
 * sudo cp arch/arm64/boot/dts/broadcom/*.dtb mnt/boot/
 * sudo cp arch/arm64/boot/dts/overlays/*.dtb* mnt/boot/overlays/
 * sudo cp arch/arm64/boot/dts/overlays/README mnt/boot/overlays/
 
-# Edit config.txt
+### Edit config.txt
 * sudo nano mnt/boot/config.txt
-# Add or ensure:
-[all]
+### Add or ensure:
+**[all]**
 * kernel=kernel8.img
 * sudo umount mnt/boot mnt/root
 
@@ -126,7 +126,7 @@ The project includes:
 * ssh pi@<rpi-ip>
 * sudo ./user_control
 
-#### Usage Direct Shell Commands
+### Usage Direct Shell Commands
 
 * echo "bat" | sudo tee /dev/driver   # Turn ON
 * echo "tat" | sudo tee /dev/driver   # Turn OFF
@@ -134,15 +134,16 @@ The project includes:
 #### Read Test
 
 * cat /dev/driver
-# → Hello user
+### → Hello user
 
-#### Kernel Logs
+### Kernel Logs
 
 * dmesg | grep -i driver
 
 ## Image
 ### Copy Led User To Raspberry Pi 4:
 ![Image](https://github.com/user-attachments/assets/d5254b2a-7862-47db-b946-c4bba494f83f)
+
 ### Implement on Ubuntu: 
 ![Image](https://github.com/user-attachments/assets/8a5fde29-6cf1-4977-b8b2-febd4a9ce15c)
 
