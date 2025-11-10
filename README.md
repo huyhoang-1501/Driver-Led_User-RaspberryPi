@@ -13,7 +13,6 @@
   <p>
     <a href="#-overview">Overview</a> •
     <a href="#-key-features">Key Features</a> •
-    <a href="#-system-architecture">Architecture</a> •
     <a href="#-setup-guide">Setup Guide</a> •
     <a href="#-usage">Usage</a> •
     <a href="#-testing">Testing</a>
@@ -54,128 +53,93 @@ The project includes:
 
 ---
 
-## System Architecture
-+------------------+   write("bat"/"tat")   +------------------+
-|   user_control   | ────────────────────▶ |   /dev/driver    |
-| (userspace CLI)  |                         | (char device)    |
-+------------------+                         +------------------+
-▲
-│
-+------+------+
-|  driver.ko  |
-| (kernel)    |
-+------+------+
-▲
-│
-GPIO Register Access
-▼
-+------------------+
-|  BCM2711 GPIO    |
-|  Physical Pin    |
-+------------------+
-
-
----
-
 ## Setup Guide
 
 ### 1. Host PC (Ubuntu) – Install Tools
 
-sudo apt update
-sudo apt install -y git bc bison flex libssl-dev make libc6-dev libncurses5-dev
-sudo apt install -y crossbuild-essential-arm64
+* sudo apt update
+* sudo apt install -y git bc bison flex libssl-dev make libc6-dev libncurses5-dev
+* sudo apt install -y crossbuild-essential-arm64
 
 ### 2. Clone & Configure Raspberry Pi Kernel
 
-mkdir -p ~/kernel_custom && cd ~/kernel_custom
-git clone --depth=1 -b rpi-5.15.y https://github.com/raspberrypi/linux
-cd linux
-KERNEL=kernel8
-make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- bcm2711_defconfig
+* mkdir -p ~/kernel_custom && cd ~/kernel_custom
+* git clone --depth=1 -b rpi-5.15.y https://github.com/raspberrypi/linux
+* cd linux
+* KERNEL=kernel8
+* make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- bcm2711_defconfig
 # (Optional) make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- menuconfig
 
 ### 3. Build Kernel, Modules & DTBs
 
-make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- Image modules dtbs -j$(nproc)
+* make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- Image modules dtbs -j$(nproc)
 
 ### 4. Build the Driver Module
 
-Place driver_rpi4.c and its Makefile in a folder (e.g., ~/rpi4-driver/):
-Makefile (driver)
-
-cd ~/rpi4-driver
-make
+* Place driver_rpi4.c and its Makefile in a folder (e.g., ~/rpi4-driver/):
+* Makefile (driver)
+* cd ~/rpi4-driver
+* make
 # → driver_rpi4.ko
 
 ### 5. Deploy Kernel to SD Card
 
 # Insert RPi SD card → identify with lsblk (e.g., /dev/sdb)
-sudo mkdir -p mnt/boot mnt/root
-sudo mount /dev/sdb1 mnt/boot
-sudo mount /dev/sdb2 mnt/root
+* sudo mkdir -p mnt/boot mnt/root
+* sudo mount /dev/sdb1 mnt/boot
+* sudo mount /dev/sdb2 mnt/root
 
 # Install modules
-sudo env PATH=$PATH make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- \
-     INSTALL_MOD_PATH=$(pwd)/mnt/root modules_install
+* sudo env PATH=$PATH make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- \
+     * * INSTALL_MOD_PATH=$(pwd)/mnt/root modules_install
 
 # Backup & copy kernel
-sudo cp mnt/boot/$KERNEL.img mnt/boot/$KERNEL-backup.img
-sudo cp arch/arm64/boot/Image mnt/boot/$KERNEL.img
-sudo cp arch/arm64/boot/dts/broadcom/*.dtb mnt/boot/
-sudo cp arch/arm64/boot/dts/overlays/*.dtb* mnt/boot/overlays/
-sudo cp arch/arm64/boot/dts/overlays/README mnt/boot/overlays/
+* sudo cp mnt/boot/$KERNEL.img mnt/boot/$KERNEL-backup.img
+* sudo cp arch/arm64/boot/Image mnt/boot/$KERNEL.img
+* sudo cp arch/arm64/boot/dts/broadcom/*.dtb mnt/boot/
+* sudo cp arch/arm64/boot/dts/overlays/*.dtb* mnt/boot/overlays/
+* sudo cp arch/arm64/boot/dts/overlays/README mnt/boot/overlays/
 
 # Edit config.txt
-sudo nano mnt/boot/config.txt
+* sudo nano mnt/boot/config.txt
 # Add or ensure:
 [all]
-kernel=kernel8.img
-
-sudo umount mnt/boot mnt/root
+* kernel=kernel8.img
+* sudo umount mnt/boot mnt/root
 
 ### 6. Load Driver on RPi
 
-scp driver_rpi4.ko pi@<rpi-ip>:/home/pi/
-ssh pi@<rpi-ip>
+* scp driver_rpi4.ko pi@<rpi-ip>:/home/pi/
+* ssh pi@<rpi-ip>
 
-sudo insmod /home/pi/driver_rpi4.ko
-dmesg | tail -n 20
-ls -l /dev/driver
+* sudo insmod /home/pi/driver_rpi4.ko
+* dmesg | tail -n 20
+* ls -l /dev/driver
 
 ### 7. Build & Run Userspace App
 
-user_control.c (already provided)
-Makefile (userspace)
+* user_control.c (already provided)
+* Makefile (userspace)
 
-make
-scp user_control pi@<rpi-ip>:/home/pi/
-ssh pi@<rpi-ip>
-sudo ./user_control
+* make
+* scp user_control pi@<rpi-ip>:/home/pi/
+* ssh pi@<rpi-ip>
+* sudo ./user_control
 
 #### Usage Direct Shell Commands
 
-echo "bat" | sudo tee /dev/driver   # Turn ON
-echo "tat" | sudo tee /dev/driver   # Turn OFF
+* echo "bat" | sudo tee /dev/driver   # Turn ON
+* echo "tat" | sudo tee /dev/driver   # Turn OFF
 
 #### Read Test
 
-cat /dev/driver
+* cat /dev/driver
 # → Hello user
 
 #### Kernel Logs
 
-dmesg | grep -i driver
+* dmesg | grep -i driver
 
-#### File Structure
-
-.
-├── driver_rpi4.c          # Kernel driver source
-├── user_control.c         # Userspace CLI app
-├── Makefile (driver)      # Cross-compile .ko
-├── Makefile (user)        # Build user_control
-├── README.md              # This file
-└── kernel_custom/
-    └── linux/             # Custom kernel source tree
 ## Image
 ### Copy Led User To Raspberry Pi 4:
 ![Image](https://github.com/user-attachments/assets/d5254b2a-7862-47db-b946-c4bba494f83f)
