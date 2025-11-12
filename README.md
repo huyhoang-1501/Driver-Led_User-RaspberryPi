@@ -91,7 +91,7 @@ The project includes:
 
 ### Install modules
 * sudo env PATH=$PATH make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- \
-     * * INSTALL_MOD_PATH=$(pwd)/mnt/root modules_install
+* INSTALL_MOD_PATH=$(pwd)/mnt/root modules_install
 
 ### Backup & copy kernel
 * sudo cp mnt/boot/$KERNEL.img mnt/boot/$KERNEL-backup.img
