@@ -1,23 +1,5 @@
 <div align="center">
   <h1>Raspberry Pi 4 GPIO Control Driver & User Interface</h1>
-  <p>
-    <img src="https://img.shields.io/badge/Platform-Raspberry%20Pi%204B-red?style=for-the-badge&logo=raspberry-pi&logoColor=white" alt="Raspberry Pi 4B">
-    <img src="https://img.shields.io/badge/Kernel-Linux%205.15%2B-blue?style=for-the-badge&logo=linux&logoColor=white" alt="Linux Kernel">
-    <img src="https://img.shields.io/badge/Driver-Character%20Device-green?style=for-the-badge&logo=c&logoColor=white" alt="Char Driver">
-    <img src="https://img.shields.io/badge/GPIO-BCM2711-orange?style=for-the-badge&logo=raspberry-pi&logoColor=white" alt="BCM2711 GPIO">
-    <img src="https://img.shields.io/badge/Language-C%20&%20Makefile-critical?style=for-the-badge&logo=c&logoColor=white" alt="C Language">
-    <img src="https://img.shields.io/badge/Architecture-ARM64-blueviolet?style=for-the-badge&logo=arm&logoColor=white" alt="ARM64">
-    <img src="https://img.shields.io/badge/Toolchain-aarch64--linux--gnu--gnu-brightgreen?style=for-the-badge&logo=gnu&logoColor=white" alt="Cross Compile">
-  </p>
-  ---
-  <p>
-    <a href="#-overview">Overview</a> •
-    <a href="#-key-features">Key Features</a> •
-    <a href="#-setup-guide">Setup Guide</a> •
-    <a href="#-usage">Usage</a> •
-    <a href="#-testing">Testing</a>
-  </p>
-  ---
 </div>
 <br>
 
